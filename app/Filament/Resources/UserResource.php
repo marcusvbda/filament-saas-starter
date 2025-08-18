@@ -79,7 +79,7 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('Nome')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('role')->label('Tipo')->getStateUsing(function ($record) {
+                Tables\Columns\TextColumn::make('role')->label('Role')->getStateUsing(function ($record) {
                     return ucfirst(str_replace('_', ' ', $record->roles->first()?->name ?? 'N/A'));
                 }),
                 Tables\Columns\TextColumn::make('summary_detais')
@@ -98,7 +98,7 @@ class UserResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('role')
-                    ->label('Tipo')
+                    ->label('Role')
                     ->relationship('roles', 'name')
                     ->multiple(),
                 Tables\Filters\SelectFilter::make('civil_status')
