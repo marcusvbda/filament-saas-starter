@@ -2,48 +2,60 @@
 
 namespace App\Models;
 
-use App\Models\Traits\HasRelations;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
+use Filament\Models\Contracts\HasDefaultTenant;
+use Filament\Models\Contracts\HasTenants;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
+use Wallo\FilamentCompanies\HasCompanies;
+use Wallo\FilamentCompanies\HasConnectedAccounts;
+use Wallo\FilamentCompanies\HasProfilePhoto;
+use Wallo\FilamentCompanies\SetsProfilePhotoFromUrl;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasTenants
 {
-    use HasFactory, Notifiable, HasApiTokens, HasRoles, HasRelations;
-
-    public static $civilStatuses = [
-        'married' => 'Solteiro(a)',
-        'single' => 'Casado(a)',
-        'divorced' => 'Divorciado(a)',
-        'widower' => 'Viuvo(a)',
-        'other' => 'Outro',
-    ];
+    use HasApiTokens;
+    use HasCompanies;
+    use HasConnectedAccounts;
+    use HasFactory;
+    use HasProfilePhoto;
+    use Notifiable;
+    use SetsProfilePhotoFromUrl;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'cpf_or_cnpj',
-        'profession',
-        'civil_status',
-        'nacionality',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'profile_photo_url',
     ];
 
     /**
@@ -59,23 +71,28 @@ class User extends Authenticatable
         ];
     }
 
-    public function phones()
+    public function canAccessPanel(Panel $panel): bool
     {
-        return $this->morphMany(Phone::class, 'phoneable');
+        return true;
     }
 
-    public function addresses()
+    public function canAccessTenant(Model $tenant): bool
     {
-        return $this->morphMany(Address::class, 'addressable');
+        return $this->belongsToCompany($tenant);
     }
 
-    public function setPasswordAttribute($value)
+    public function getTenants(Panel $panel): array | Collection
     {
-        $this->attributes['password'] = bcrypt($value);
+        return $this->allCompanies();
     }
 
-    public function notifications()
+    public function getDefaultTenant(Panel $panel): ?Model
     {
-        return $this->belongsToMany(Notification::class, 'notification_user')->withPivot('read_at');
+        return $this->currentCompany;
+    }
+
+    public function getFilamentAvatarUrl(): string
+    {
+        return $this->profile_photo_url;
     }
 }
