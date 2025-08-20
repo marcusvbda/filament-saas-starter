@@ -1,0 +1,21 @@
+{
+    "Name": "Nome",
+    "Phone": "Telefone",
+    "Registers": "Registros",
+    "Customer": "Cliente",
+    "Customers": "Clientes",
+    "Document": "Documento",
+    "Settings": "Configurações",
+    "Integrations": "Integrações",
+    "Port": "Porta",
+    "User": "Usuário",
+    "Password": "Senha",
+    "Event": "Evento",
+    "Events": "Eventos",
+    "Start date": "Data de início",
+    "End date": "Data de término",
+    "To": "Até",
+    "Main informations": "Informações principais",
+    "From": "De",
+    "Until": "Até"
+}
