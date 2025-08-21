@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\traits\hasCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Customer extends Model
 {
+    use hasCompany;
     protected $fillable = [
         'name',
         'email',
@@ -19,22 +21,6 @@ class Customer extends Model
         'created_at',
         'updated_at',
     ];
-
-    protected static function booted()
-    {
-        static::creating(function ($customer) {
-            $user = auth()->user();
-            $company = $user?->primaryCompany();
-            if (!empty($company)) {
-                $customer->company_id = $company->id;
-            }
-        });
-    }
-
-    public function company(): BelongsTo
-    {
-        return $this->BelongsTo(Company::class);
-    }
 
     public function contract(): BelongsTo
     {

@@ -64,6 +64,7 @@ class ContractTemplateResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label(__("Name"))->sortable()->searchable(),
                 Tables\Columns\TextColumn::make('created_at')->label(__("Created at"))->sortable()->searchable()->date('d/m/Y - H:i'),

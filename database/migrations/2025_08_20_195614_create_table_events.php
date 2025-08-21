@@ -18,7 +18,6 @@ return new class extends Migration
             $table->dateTime('end_date');
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignId('customer_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignId('contract_id')->nullable()->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

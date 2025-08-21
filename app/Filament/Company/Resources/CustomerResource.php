@@ -52,6 +52,7 @@ class CustomerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('id')->label('#')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('name')->label(__("Name"))->searchable()->sortable(),

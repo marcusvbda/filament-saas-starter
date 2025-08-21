@@ -25,5 +25,8 @@
     "Use the following tags": "Use as seguintes tags",
     "Created at": "Criado em",
     "Updated at": "Atualizado em",
-    "Company": "Empresa"
+    "Company": "Empresa",
+    "Redirect link": "Link de redirecionamento",
+    "Keep it empty if you want to not redirect the user after signing": "Deixe em branco se não redicionar o usuário após assinar",
+    "Events Webhook URL": "URL do Webhook de Eventos"
 }

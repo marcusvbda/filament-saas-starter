@@ -21,9 +21,10 @@ return new class extends Migration
 
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
-            $table->jsonb('data');
+            $table->string('name');
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignId('contract_template_id')->constrained()->cascadeOnDelete();
+            $table->nullableMorphs('contractable');
             $table->timestamps();
         });
     }

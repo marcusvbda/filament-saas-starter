@@ -2,6 +2,7 @@
 
 namespace App\Filament\Company\Resources;
 
+use App\Filament\Company\Resources\EventResource\ContractsRelationManagerResource\RelationManagers\ContractsRelationManager;
 use App\Filament\Company\Resources\EventResource\Pages;
 use App\Filament\Company\Resources\EventResource\RelationManagers;
 use App\Models\Event;
@@ -63,6 +64,7 @@ class EventResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('id')->label('#')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('name')->label(__("Name"))->searchable()->sortable(),
@@ -95,7 +97,7 @@ class EventResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ContractsRelationManager::make()
         ];
     }
 

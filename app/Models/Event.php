@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Event extends Model
 {
@@ -33,8 +34,8 @@ class Event extends Model
         return $this->BelongsTo(Customer::class);
     }
 
-    public function contract(): BelongsTo
+    public function contracts(): MorphMany
     {
-        return $this->BelongsTo(Contract::class);
+        return $this->morphMany(Contract::class, 'contractable');
     }
 }

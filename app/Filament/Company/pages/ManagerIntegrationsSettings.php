@@ -42,11 +42,11 @@ class ManagerIntegrationsSettings extends SettingsPage
                         Forms\Components\TextInput::make('docusign.integration_key')
                             ->label('Integration Key'),
                         Forms\Components\TextInput::make('docusign.events_webhook_url')
-                            ->label('Url do Webhook de eventos')
+                            ->label(__("Events Webhook URL"))
                             ->default(route('docusign.webhook')),
                         Forms\Components\TextInput::make('docusign.redirect_link')
-                            ->label('Redirect pós assinatura')
-                            ->hint("Deixe em branco para não redirecionar")
+                            ->label(__("Redirect link"))
+                            ->hint(__("Keep it empty if you want to not redirect the user after signing"))
                             ->default("#"),
                     ]),
                 ])
