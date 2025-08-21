@@ -21,6 +21,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use TomatoPHP\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Wallo\FilamentCompanies\FilamentCompanies;
 use Wallo\FilamentCompanies\Pages\User\PersonalAccessTokens;
 use Wallo\FilamentCompanies\Pages\User\Profile;
@@ -40,9 +41,9 @@ class UserPanelProvider extends PanelProvider
                 'profile' => MenuItem::make()
                     ->label('Profile')
                     ->icon('heroicon-o-user-circle')
-                    ->url(static fn () => Profile::getUrl()),
+                    ->url(static fn() => Profile::getUrl()),
                 MenuItem::make()
-                    ->label('Company')
+                    ->label(__('Company'))
                     ->icon('heroicon-o-building-office')
                     ->url(static function (): ?string {
                         $user = Auth::user();
@@ -56,14 +57,13 @@ class UserPanelProvider extends PanelProvider
             ])
             ->navigationItems([
                 NavigationItem::make('Personal Access Tokens')
-                    ->label(static fn (): string => __('filament-companies::default.navigation.links.tokens'))
+                    ->label(static fn(): string => __('filament-companies::default.navigation.links.tokens'))
                     ->icon('heroicon-o-key')
-                    ->url(static fn () => PersonalAccessTokens::getUrl()),
+                    ->url(static fn() => PersonalAccessTokens::getUrl()),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
                 Profile::class,
                 PersonalAccessTokens::class,
             ])
@@ -85,6 +85,9 @@ class UserPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->plugins([
+                // FilamentLanguageSwitcherPlugin::make(),
             ]);
     }
 }

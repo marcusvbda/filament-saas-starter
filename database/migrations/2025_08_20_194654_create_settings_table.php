@@ -9,11 +9,11 @@ return new class extends SettingsMigration
      */
     public function up(): void
     {
-        $this->migrator->add('integrations.email', [
-            "host" => "",
-            "port" => "",
-            "user_name" => "",
-            "password" => ""
+        $this->migrator->add('integrations.docusign', [
+            "oauth_uri" => "",
+            "base_uri" => "",
+            "integration_key" => "",
+            "events_webhook_url" => ""
         ]);
     }
 
@@ -22,6 +22,6 @@ return new class extends SettingsMigration
      */
     public function down(): void
     {
-        $this->migrator->delete('integrations.email');
+        $this->migrator->delete('integrations.docusign');
     }
 };

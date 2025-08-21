@@ -31,7 +31,6 @@ class Customer extends Model
         });
     }
 
-
     public function company(): BelongsTo
     {
         return $this->BelongsTo(Company::class);

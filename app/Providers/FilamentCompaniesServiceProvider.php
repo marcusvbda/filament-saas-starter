@@ -36,6 +36,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use TomatoPHP\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Wallo\FilamentCompanies\Actions\GenerateRedirectForProvider;
 // use Wallo\FilamentCompanies\Enums\Feature;
 // use Wallo\FilamentCompanies\Enums\Provider;
@@ -65,27 +66,30 @@ class FilamentCompaniesServiceProvider extends PanelProvider
 
                 return Filament::getPanel(FilamentCompanies::getCompanyPanel())->getTenantRegistrationUrl();
             })
-            ->plugin(
-                FilamentCompanies::make()
-                    ->userPanel('user')
-                    ->switchCurrentCompany()
-                    ->updateProfileInformation()
-                    ->updatePasswords()
-                    ->setPasswords()
-                    // ->connectedAccounts()
-                    ->manageBrowserSessions()
-                    ->accountDeletion()
-                    ->profilePhotos()
-                    ->api()
-                    ->companies(invitations: true)
-                    ->autoAcceptInvitations()
-                    ->termsAndPrivacyPolicy()
-                    ->notifications()
-                    ->modals()
-                // ->socialite(
-                //     providers: [Provider::Github],
-                //     features: [Feature::RememberSession, Feature::ProviderAvatars],
-                // ),
+            ->plugins(
+                [
+                    FilamentCompanies::make()
+                        ->userPanel('user')
+                        ->switchCurrentCompany()
+                        ->updateProfileInformation()
+                        ->updatePasswords()
+                        ->setPasswords()
+                        // ->connectedAccounts()
+                        ->manageBrowserSessions()
+                        ->accountDeletion()
+                        ->profilePhotos()
+                        ->api()
+                        ->companies(invitations: true)
+                        ->autoAcceptInvitations()
+                        ->termsAndPrivacyPolicy()
+                        ->notifications()
+                        ->modals(),
+                    // ->socialite(
+                    //     providers: [Provider::Github],
+                    //     features: [Feature::RememberSession, Feature::ProviderAvatars],
+                    // ),
+                    FilamentLanguageSwitcherPlugin::make(),
+                ]
             )
             ->registration(Register::class)
             ->colors([

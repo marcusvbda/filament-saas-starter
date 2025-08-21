@@ -11,9 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('contract_templates', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->longText('content');
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+        });
+
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
             $table->jsonb('data');
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('contract_template_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -24,5 +34,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('contracts');
+        Schema::dropIfExists('contract_templates');
     }
 };

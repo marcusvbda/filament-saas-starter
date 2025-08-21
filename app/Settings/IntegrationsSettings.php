@@ -6,11 +6,11 @@ use Spatie\LaravelSettings\Settings;
 
 class IntegrationsSettings extends Settings
 {
-    public array $email = [
-        "host" => "",
-        "port" => "",
-        "user_name" => "",
-        "password" => ""
+    public array $docusign = [
+        "oauth_uri" => "",
+        "base_uri" => "",
+        "integration_key" => "",
+        "events_webhook_url" => ""
     ];
 
     public static function group(): string

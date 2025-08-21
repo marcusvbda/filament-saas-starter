@@ -34,17 +34,20 @@ class ManagerIntegrationsSettings extends SettingsPage
         return $form
             ->schema([
                 Forms\Components\Tabs::make('settings')->tabs([
-                    Forms\Components\Tabs\Tab::make("Email")->schema([
-                        Forms\Components\TextInput::make('email.host')
-                            ->label('Host'),
-                        Forms\Components\TextInput::make('email.port')
-                            ->label(__("Port")),
-                        Forms\Components\TextInput::make('email.user_name')
-                            ->label(__("User")),
-                        Forms\Components\TextInput::make('email.password')
-                            ->label(__("Password"))
-                            ->password()
-                            ->revealable()
+                    Forms\Components\Tabs\Tab::make("DocuSign")->schema([
+                        Forms\Components\TextInput::make('docusign.oauth_uri')
+                            ->label('Url OAuth'),
+                        Forms\Components\TextInput::make('docusign.base_uri')
+                            ->label('Account Base URI'),
+                        Forms\Components\TextInput::make('docusign.integration_key')
+                            ->label('Integration Key'),
+                        Forms\Components\TextInput::make('docusign.events_webhook_url')
+                            ->label('Url do Webhook de eventos')
+                            ->default(route('docusign.webhook')),
+                        Forms\Components\TextInput::make('docusign.redirect_link')
+                            ->label('Redirect pós assinatura')
+                            ->hint("Deixe em branco para não redirecionar")
+                            ->default("#"),
                     ]),
                 ])
             ])->columns(1);

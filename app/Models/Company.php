@@ -61,4 +61,9 @@ class Company extends FilamentCompaniesCompany implements HasAvatar
     {
         return $this->HasMany(Event::class);
     }
+
+    public function contractTemplates(): HasMany
+    {
+        return $this->HasMany(ContractTemplate::class);
+    }
 }
