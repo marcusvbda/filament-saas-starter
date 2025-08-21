@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.2",
         "andrewdwallo/filament-companies": "^4.0",
+        "barryvdh/laravel-dompdf": "^3.1",
         "filament/filament": "^3.2",
         "filament/spatie-laravel-settings-plugin": "^3.2",
         "laravel/framework": "^11.9",

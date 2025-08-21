@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Filament\Company\Resources\ContractTemplateResource as ResourcesContractTemplateResource;
 use App\Filament\Resources\ContractTemplateResource;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\User;
@@ -228,7 +229,8 @@ class DocuSignService
         if ($pdfBinary) {
             Storage::put('contracts/' . $filename, $pdfBinary);
         } else {
-            $html = $this->parseTemplate($contract->contract_template->content, $contract->customer);
+            $payload = $contract->contractable->getRenderPdfPayload();
+            $html = $this->parseTemplate($contract->contractTemplate->content, $payload);
             $pdf = Pdf::loadHTML($html)->setPaper('a4');
             Storage::put('contracts/' . $filename, $pdf->output());
         }
@@ -236,34 +238,13 @@ class DocuSignService
         return Storage::path('contracts/' . $filename);
     }
 
-    private function parseTemplate(string $template, User $customer): string
+    private function parseTemplate(string $template, $contractable): string
     {
         $replacements = [];
-        foreach (ContractTemplateResource::$templateTags as $tag) {
+        foreach (ResourcesContractTemplateResource::$templateTags as $tag) {
             $cleanTag = str_replace('{{', '', str_replace('}}', '', $tag));
-            if ($customer?->{$cleanTag}) {
-                $replacements[$tag] = $this->mapData($customer->{$cleanTag}, $cleanTag);
-            } else {
-                $replacements[$tag] = '';
-            }
+            $replacements[$tag] = data_get($contractable, $cleanTag, "");
         }
         return strtr($template, $replacements);
-    }
-
-    private function mapData($data, string $cleanTag)
-    {
-        return match ($cleanTag) {
-            // 'phones' => implodeSuffix(', ', $data->map(fn($phone) => "(" . $phone->type . ") " . $phone->number)->toArray()),
-            // 'addresses' => implodeSuffix(', ', $data->map(fn($address) => "(" . $address->name . ") " . implode(', ', array_filter([
-            //     $address->zip_code,
-            //     $address->street,
-            //     $address->number,
-            //     $address->district,
-            //     $address->complement,
-            //     $address->city . "-" .
-            //         $address->state
-            // ])))->toArray()),
-            default => $data
-        };
     }
 }

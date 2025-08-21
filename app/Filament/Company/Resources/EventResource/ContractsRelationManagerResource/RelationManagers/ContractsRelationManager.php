@@ -6,20 +6,17 @@ use App\Filament\Company\Resources\ContractTemplateResource;
 use App\Models\ContractTemplate;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class ContractsRelationManager extends RelationManager
 {
     protected static string $relationship = 'contracts';
 
-    public static function getLabel(): string
-    {
-        return __('Contracts');
-    }
-
-    public static function getPluralLabel(): string
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return __('Contracts');
     }
@@ -39,30 +36,36 @@ class ContractsRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\Section::make(__('Main informations'))->schema($this->getFormSchema())
-            ])->columns(1);
+            ->schema($this->getFormSchema())->columns(1);
     }
 
     public function table(Table $table): Table
     {
         return $table
             ->recordTitleAttribute('name')
+            ->defaultSort('id', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('contractTemplate.name'),
-                Tables\Columns\TextColumn::make('created_at')->date('d/m/Y - H:i'),
-                Tables\Columns\TextColumn::make('updated_at')->date('d/m/Y - H:i'),
+                Tables\Columns\TextColumn::make('name')->sortable()->label(__("Name"))->searchable(),
+                Tables\Columns\TextColumn::make('contractTemplate.name')->label(__("Template")),
+                Tables\Columns\TextColumn::make('created_at')->date('d/m/Y - H:i')->label(__("Created at"))->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('updated_at')->date('d/m/Y - H:i')->label(__("Updated at"))->sortable()->searchable(),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()->label(__('Create contract')),
             ])
             ->actions([
+                Tables\Actions\Action::make('sendForSignature')
+                    ->label(__("Send for signature"))
+                    ->color("info")
+                    ->icon('heroicon-o-paper-airplane')
+                    ->requiresConfirmation()
+                    ->modalHeading(__("Confirmation"))
+                    ->modalDescription(__("Are you sure you want to send this contract for signature?"))
+                    ->url(fn($record) => route('docusign.contract', $record)),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

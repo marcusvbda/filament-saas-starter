@@ -28,5 +28,11 @@
     "Company": "Empresa",
     "Redirect link": "Link de redirecionamento",
     "Keep it empty if you want to not redirect the user after signing": "Deixe em branco se não redicionar o usuário após assinar",
-    "Events Webhook URL": "URL do Webhook de Eventos"
+    "Events Webhook URL": "URL do Webhook de Eventos",
+    "Send for signature": "Enviar para assinatura",
+    "Confirmation": "Confirmação",
+    "Are you sure you want to send this contract for signature?": "Você tem certeza que deseja enviar este contrato",
+    "Create contract": "Criar contrato",
+    "Error sending contract for signature": "Erro ao enviar contrato para assinatura",
+    "Error printing contract": "Erro ao imprimir contrato"
 }

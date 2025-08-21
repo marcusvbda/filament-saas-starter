@@ -3,8 +3,11 @@
 namespace App\Models;
 
 use App\Models\traits\hasCompany;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Contract extends Model
 {
@@ -24,5 +27,16 @@ class Contract extends Model
     public function contractTemplate(): BelongsTo
     {
         return $this->BelongsTo(ContractTemplate::class);
+    }
+
+    public function getFileName(): string
+    {
+        $dateTime = Carbon::now()->format("d/m/Y - H:i");
+        return $this->name . " [$dateTime].pdf";
+    }
+
+    public function contractable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

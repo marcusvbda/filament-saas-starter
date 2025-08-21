@@ -38,4 +38,9 @@ class Event extends Model
     {
         return $this->morphMany(Contract::class, 'contractable');
     }
+
+    public function getRenderPdfPayload(): array
+    {
+        return $this->load(["customer", "company"])->toArray();
+    }
 }

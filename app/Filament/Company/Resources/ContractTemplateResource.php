@@ -17,8 +17,10 @@ class ContractTemplateResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     public static $templateTags = [
         '{{name}}',
-        '{{email}}',
-        '{{document}}',
+        '{{customer.email}}',
+        '{{customer.name}}',
+        '{{customer.document}}',
+        '{{company.name}}',
     ];
 
     public static function getNavigationLabel(): string

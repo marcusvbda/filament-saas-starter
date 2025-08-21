@@ -15,7 +15,7 @@ class ContractsController extends Controller
             return app(DocuSignService::class)->sendToSign($contract);
         } catch (Exception $e) {
             Notification::make()
-                ->title("Erro ao enviar contrato para assinatura.")
+                ->title(__("Error sending contract for signature"))
                 ->danger()
                 ->send();
             return redirect()->back();
@@ -28,7 +28,7 @@ class ContractsController extends Controller
             return app(DocuSignService::class)->printPdf($contract);
         } catch (Exception $e) {
             Notification::make()
-                ->title("Erro ao imprimir contrato.")
+                ->title(__("Error printing contract"))
                 ->danger()
                 ->send();
             return redirect()->back();
