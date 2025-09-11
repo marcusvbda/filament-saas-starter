@@ -4,9 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Event extends Model
@@ -29,6 +28,20 @@ class Event extends Model
         'end_date',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::updating(function ($event) {
+            if ($event->isDirty('contract_id')) {
+                $contract = $event->contract;
+                if ($contract) {
+                    $contract->additional_data = [];
+                    $contract->saveQuietly();
+                }
+            }
+        });
+    }
+
     public function company(): BelongsTo
     {
         return $this->BelongsTo(Company::class);
@@ -39,9 +52,9 @@ class Event extends Model
         return $this->BelongsTo(Customer::class);
     }
 
-    public function contracts(): MorphMany
+    public function contract(): MorphOne
     {
-        return $this->morphMany(Contract::class, 'contractable');
+        return $this->morphOne(Contract::class, 'contractable');
     }
 
     public function getRenderPdfPayload(): array

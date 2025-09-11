@@ -5,6 +5,7 @@ namespace App\Filament\Company\Resources\EventResource\Pages;
 use App\Filament\Company\Resources\EventResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Livewire\Attributes\On;
 
 class EditEvent extends EditRecord
 {
@@ -19,6 +20,12 @@ class EditEvent extends EditRecord
 
     protected function afterSave(): void
     {
-        $this->redirect('edit');
+        $this->refreshEventPage();
+    }
+
+    #[On('refreshEventPage')]
+    public function refreshEventPage(): void
+    {
+        $this->dispatch('refresh');
     }
 }

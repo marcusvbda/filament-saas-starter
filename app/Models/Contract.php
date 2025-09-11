@@ -18,7 +18,8 @@ class Contract extends Model
         'name',
         'contract_template_id',
         'company_id',
-        'integration_data'
+        'integration_data',
+        'additional_data'
     ];
 
     protected $dates = [
@@ -27,8 +28,23 @@ class Contract extends Model
     ];
 
     public $casts = [
-        'integration_data' => 'json'
+        'integration_data' => 'json',
+        'additional_data' => 'json'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::deleting(function ($contract) {
+            $event = $contract->contractable;
+            $contract->additional_data = [];
+            if ($event) {
+                $event->eventFillUrl()->delete();
+            }
+            $contract->saveQuietly();
+        });
+    }
+
 
     public function contractTemplate(): BelongsTo
     {

@@ -4,18 +4,16 @@ namespace App\Filament\Company\Resources;
 
 use App\Filament\Company\Resources\EventResource\ContractsRelationManagerResource\RelationManagers\ContractsRelationManager;
 use App\Filament\Company\Resources\EventResource\Pages;
-use App\Filament\Company\Resources\EventResource\RelationManagers;
+use App\Filament\Company\Resources\EventResource\RelationManagers\ContractRelationManager;
 use App\Models\Event;
-use CodeWithKyrian\FilamentDateRange\Forms\Components\DateRangePicker;
-use Coolsam\Flatpickr\Forms\Components\Flatpickr;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\HtmlString;
 
 class EventResource extends Resource
 {
@@ -57,7 +55,40 @@ class EventResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make(__('Main informations'))->schema(static::getFormSchema())
+                Forms\Components\Section::make(__('Main informations'))->schema(static::getFormSchema()),
+                Forms\Components\Section::make(__('Additional data'))
+                    ->schema(
+                        function (Get $get, $record) {
+                            $contract = $record?->contract;
+                            $additionalData = $contract->additional_data ?? [];
+                            $fields = [];
+                            if (!empty($record->eventFillUrl) && $record->eventFillUrl?->filled !== true) {
+                                $url = route('event.fill_data', $record->eventFillUrl->key);
+
+                                $fields[] = Forms\Components\Placeholder::make('fill_url_alert')->hiddenLabel()
+                                    ->content(new HtmlString('<a href="' . e($url) . '" target="_blank" class="underline">' . e($url) . '</a>'));
+                            }
+
+                            $fields = array_merge($fields, collect($record?->contract?->contractTemplate?->additionalFields ?? [])
+                                ->map(function ($field) use ($additionalData) {
+                                    $key = data_get($field->data, 'key');
+
+                                    return Forms\Components\TextInput::make("additional_data.{$key}")
+                                        ->label(__($key))
+                                        ->disabled()
+                                        ->dehydrated(false)
+                                        ->afterStateHydrated(function ($component) use ($additionalData, $key) {
+                                            $component->state(data_get($additionalData, $key, ''));
+                                        });
+                                })
+                                ->values()
+                                ->all());
+
+                            return $fields;
+                        }
+                    )
+                    ->visible(fn(Get $get, $record) => !empty($record->contract) && !$record?->additional_data)
+                    ->columns(1),
             ])->columns(1);
     }
 
@@ -102,7 +133,7 @@ class EventResource extends Resource
     public static function getRelations(): array
     {
         return [
-            ContractsRelationManager::make()
+            ContractRelationManager::make()
         ];
     }
 

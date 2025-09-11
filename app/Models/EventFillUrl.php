@@ -17,6 +17,11 @@ class EventFillUrl extends Model
         "filled" => "boolean"
     ];
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+    ];
+
     public function event(): BelongsTo
     {
         return $this->BelongsTo(Event::class);

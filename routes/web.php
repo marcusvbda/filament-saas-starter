@@ -25,6 +25,6 @@ Route::group(["prefix" => "docusign"], function () {
 Route::group(["prefix" => "event"], function () {
     Route::get('fill/{urlKey}', [EventsController::class, 'fillEventData'])->name('event.fill_data');
     Route::group(["middleware" => Authenticate::class], function () {
-        Route::get('{event}', [EventsController::class, 'generateUrlToFill'])->name('event.generate_url_to_fill');
+        Route::get('generate-url-to-fill/{contract}', [EventsController::class, 'generateUrlToFill'])->name('event.generate_url_to_fill');
     });
 });

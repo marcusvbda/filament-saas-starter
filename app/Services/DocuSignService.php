@@ -6,6 +6,7 @@ use App\Filament\Company\Resources\ContractTemplateResource as ResourcesContract
 use App\Filament\Company\Resources\EventResource\Pages\EditEvent;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Contract;
+use App\Models\ContractTemplate;
 use App\Settings\IntegrationsSettings;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
@@ -224,8 +225,7 @@ class DocuSignService
         if ($pdfBinary) {
             Storage::put('contracts/' . $filename, $pdfBinary);
         } else {
-            $payload = $contract->contractable->getRenderPdfPayload();
-            $html = $this->parseTemplate($contract->contractTemplate->content, $payload);
+            $html = $this->parseTemplate($contract);
             $pdf = Pdf::loadHTML($html)->setPaper('a4');
             Storage::put('contracts/' . $filename, $pdf->output());
         }
@@ -233,13 +233,23 @@ class DocuSignService
         return Storage::path('contracts/' . $filename);
     }
 
-    private function parseTemplate(string $template, $contractable): string
+    private function parseTemplate(Contract $contract): string
     {
         $replacements = [];
+        $template = $contract->contractTemplate;
+        $contractAdditionalData = $contract?->additional_data ?? [];
+        $payload = $contract->contractable->getRenderPdfPayload();
         foreach (ResourcesContractTemplateResource::$templateTags as $tag) {
-            $cleanTag = str_replace('{{', '', str_replace('}}', '', $tag));
-            $replacements[$tag] = data_get($contractable, $cleanTag, "");
+            $replacements[$tag] = data_get($payload, $tag, "");
         }
-        return strtr($template, $replacements);
+        foreach ($template->additionalFields as $additionalField) {
+            $key = data_get($additionalField->data, "key", '');
+            $value = data_get($contractAdditionalData, $key, '');
+            if (is_array($value)) {
+                $value = implode(", ", $value);
+            }
+            $replacements[$tag] = $value;
+        }
+        return strtr($template->content, $replacements);
     }
 }

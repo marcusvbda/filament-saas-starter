@@ -6,21 +6,23 @@ use App\Filament\Company\Resources\ContractTemplateResource\Pages;
 use App\Models\ContractTemplate;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Mohamedsabil83\FilamentFormsTinyeditor\Components\TinyEditor;
+use Str;
 
 class ContractTemplateResource extends Resource
 {
     protected static ?string $model = ContractTemplate::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     public static $templateTags = [
-        '{{name}}',
-        '{{customer.email}}',
-        '{{customer.name}}',
-        '{{customer.document}}',
-        '{{company.name}}',
+        'name',
+        'customer.email',
+        'customer.name',
+        'customer.document',
+        'company.name',
     ];
 
     public static function getNavigationLabel(): string
@@ -49,8 +51,84 @@ class ContractTemplateResource extends Resource
             Forms\Components\TextInput::make('name')->label(__("Name"))->required(),
             TinyEditor::make('content')
                 ->label(__("Content"))
-                ->hint(__("Use the following tags") . " : " . implodeSuffix(",", static::$templateTags))
+                ->helperText(
+                    fn(Get $get) =>
+                    __("Use the following tags") . " : " .
+                        collect(static::$templateTags)
+                        ->merge(
+                            collect($get('additionalFields') ?? [])
+                                ->pluck('data.key')
+                                ->filter()
+                        )
+                        ->map(fn($tag) => "{{{$tag}}}")
+                        ->join(', ')
+                )
+                ->reactive()
                 ->required(),
+            Forms\Components\Group::make()
+                ->label(__('Additional fields'))
+                ->schema([
+                    Forms\Components\Repeater::make('additionalFields')
+                        ->label(__('Additional fields'))
+                        ->relationship('additionalFields')
+                        ->schema([
+                            Forms\Components\TextInput::make('data.key')
+                                ->label(__('Key'))
+                                ->required()
+                                ->rules([
+                                    'required',
+                                    'distinct',
+                                    'regex:/^[a-z0-9_]+$/'
+                                ])
+                                ->lazy()
+                                ->afterStateUpdated(
+                                    fn($state, callable $set) =>
+                                    $set('data.key', Str::slug($state, '_'))
+                                ),
+                            Forms\Components\TextInput::make('data.label')
+                                ->label(__('Label'))
+                                ->required(),
+                            Forms\Components\Select::make('data.type')
+                                ->label(__('Type'))
+                                ->options([
+                                    'select'   => __('Select'),
+                                    'text'     => __('Text'),
+                                    'checkbox' => __('Checkbox'),
+                                ])
+                                ->required()
+                                ->reactive(),
+                            Forms\Components\Select::make('data.input_type')
+                                ->label(__('Input type'))
+                                ->options([
+                                    'text'   => __('Text'),
+                                    'number' => __('Number'),
+                                    'email'  => __('Email'),
+                                    'mask'   => __('Mask'),
+                                ])
+                                ->required()
+                                ->visible(fn(Get $get) => $get('data.type') === 'text')
+                                ->reactive(),
+                            Forms\Components\TextInput::make('data.mask')
+                                ->label(__('Mask'))
+                                ->required()
+                                ->visible(fn(Get $get) => $get('data.input_type') === 'mask' && $get('data.type') === 'text')
+                                ->reactive(),
+                            Forms\Components\Toggle::make('data.multiple')
+                                ->label(__('Multiple'))
+                                ->visible(fn(Get $get) => $get('data.type') === 'select'),
+                            Forms\Components\TagsInput::make('data.options')
+                                ->label(__('Options'))
+                                ->required()
+                                ->visible(fn(Get $get) => $get('data.type') === 'select'),
+                            Forms\Components\Toggle::make('data.required')
+                                ->label(__('Required')),
+                            Forms\Components\TextInput::make('data.hint')
+                                ->label(__('Hint')),
+                        ])
+                        ->columns(3)
+                        ->orderColumn('sort_order')
+                        ->defaultItems(0)
+                ])
         ];
     }
 
