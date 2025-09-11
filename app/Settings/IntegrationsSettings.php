@@ -7,8 +7,8 @@ use Spatie\LaravelSettings\Settings;
 class IntegrationsSettings extends Settings
 {
     public array $docusign = [
-        "oauth_uri" => "",
-        "base_uri" => "",
+        "oauth_uri" => "https://account-d.docusign.com",
+        "base_uri" => "https://demo.docusign.net",
         "integration_key" => "",
         "events_webhook_url" => ""
     ];

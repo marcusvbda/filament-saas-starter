@@ -54,11 +54,11 @@ class ContractsController extends Controller
 
         $docusignId = data_get($data, 'EnvelopeStatus.EnvelopeID');
         $status = strtolower(data_get($data, 'EnvelopeStatus.Status', ''));
-        $contract = Contract::where('docusign_data->envelopeId', $docusignId)->first();
+        $contract = Contract::where('integration_data->envelopeId', $docusignId)->first();
         if ($contract) {
-            $docusignData = $contract->docusign_data;
-            $docusignData->status = $status;
-            $contract->docusign_data = $docusignData;
+            $docusignData = $contract->integration_data;
+            $docusignData["status"] = $status;
+            $contract->integration_data = $docusignData;
             $contract->save();
         }
 

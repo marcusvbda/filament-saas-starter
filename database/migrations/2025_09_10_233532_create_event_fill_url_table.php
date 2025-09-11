@@ -11,15 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('events', function (Blueprint $table) {
+        Schema::create('event_fill_urls', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->dateTime('start_date');
-            $table->dateTime('end_date');
-            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('customer_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->string('key');
+            $table->boolean('filled')->default(false);
+            $table->foreignId('event_id')->nullable()->constrained()->cascadeOnDelete();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

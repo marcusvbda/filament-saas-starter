@@ -73,11 +73,14 @@ class ContractTemplateResource extends Resource
                 Tables\Columns\TextColumn::make('updated_at')->label(__("Updated at"))->sortable()->searchable()->date('d/m/Y - H:i'),
             ])
             ->filters([
-                //
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make()
+                    ->visible(fn($record) => $record->trashed())
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

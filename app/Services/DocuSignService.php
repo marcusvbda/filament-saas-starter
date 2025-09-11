@@ -3,9 +3,8 @@
 namespace App\Services;
 
 use App\Filament\Company\Resources\ContractTemplateResource as ResourcesContractTemplateResource;
-use App\Filament\Resources\ContractTemplateResource;
+use App\Filament\Company\Resources\EventResource\Pages\EditEvent;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Models\User;
 use App\Models\Contract;
 use App\Settings\IntegrationsSettings;
 use Filament\Notifications\Notification;
@@ -19,7 +18,6 @@ class DocuSignService
     private string $baseUri;
     private string $oauthUri;
     private string $webbookurl;
-    private string $redirectLink;
     private string $clientId;
 
     public function __construct()
@@ -27,15 +25,14 @@ class DocuSignService
         $settings = app()->make(IntegrationsSettings::class)->docusign;
         $this->baseUri = (string)data_get($settings, 'base_uri', "https://demo.docusign.net");
         $this->oauthUri = (string)data_get($settings, 'oauth_uri', 'https://account-d.docusign.com/oauth/auth');
-        $this->redirectLink = (string)data_get($settings, 'redirect_link', '#');
         $this->webbookurl = (string)data_get($settings, 'events_webhook_url', route('docusign.webhook'));
         $this->clientId = (string)data_get($settings, 'integration_key', '');
     }
 
     public function printPdf(Contract $contract, $code = null): mixed
     {
-        if (@$contract->docusign_data?->signed_pdf) {
-            return response()->file($contract->docusign_data?->signed_pdf);
+        if (@$contract->integration_data?->signed_pdf) {
+            return response()->file($contract->integration_data?->signed_pdf);
         }
         if (!$code) {
             return $this->redirectOAuth($contract, 'printPdf');
@@ -44,7 +41,7 @@ class DocuSignService
 
         $accessToken = data_get($credentials, 'access_token');
         $accountId = data_get($credentials, 'account_id');
-        $envelopeId = data_get($contract->docusign_data, 'envelopeId');
+        $envelopeId = data_get($contract->integration_data, 'envelopeId');
 
         $response = Http::withToken($accessToken)
             ->get("$this->baseUri/restapi/v2.1/accounts/{$accountId}/envelopes/{$envelopeId}/documents/combined");
@@ -52,9 +49,9 @@ class DocuSignService
         if ($response->failed()) abort(500, 'Erro ao baixar contrato assinado');
         $streamContent = $response->body();
         $path = $this->generatePdf($contract, $streamContent);
-        $docusignData = $contract->docusign_data;
-        $docusignData->signed_pdf = $path;
-        $contract->docusign_data = $docusignData;
+        $docusignData = (array)$contract->integration_data;
+        $docusignData["signed_pdf"] = $path;
+        $contract->integration_data = $docusignData;
         $contract->save();
         return response()->file($path);
     }
@@ -84,7 +81,7 @@ class DocuSignService
         $filename = $contract->getFileName();
 
         $payload = [
-            'emailSubject' => "Contrato " . $contract->enterprise->name,
+            'emailSubject' => "Contrato " . $contract->company->name,
             'documents' => [[
                 'documentBase64' => $documentBase64,
                 'name' => $filename,
@@ -93,9 +90,9 @@ class DocuSignService
             ]],
             'recipients' => [
                 'signers' => [[
-                    'email' => $contract->customer->email,
-                    'name' => $contract->customer->name,
-                    'recipientId' => (string) $contract->customer->id,
+                    'email' => $contract?->contractable?->customer->email,
+                    'name' => $contract?->contractable?->customer->name,
+                    'recipientId' => (string) $contract?->contractable?->customer->id,
                 ]],
             ],
             'status' => 'sent',
@@ -133,26 +130,24 @@ class DocuSignService
         $result["status"] = strtolower(data_get($result, 'status', 'sent'));
         $envelopeId = data_get($result, 'envelopeId');
         $result["sign_url"] = $this->createSignLink($contract, $envelopeId, $credentials);
-        $contract->docusign_data = $result;
+        $contract->integration_data = $result;
         $contract->save();
         Notification::make()
             ->title('Contrato enviado com sucesso')
             ->success()
             ->send();
 
-        return redirect()->route('filament.admin.resources.contracts.edit', [
-            'record' => $contract->getKey(),
-        ]);
+        return redirect()->to(EditEvent::getUrl(["record" => $contract->getKey(), 'tenant' => auth()->user()->current_company_id]));
     }
 
     public function createSignLink(Contract $contract, $envelopeId, array $credentials): string
     {
         $recipientViewRequest = [
             "authenticationMethod" => "email",
-            "recipientId" => (string) $contract->customer->id,
-            "userName" => $contract->customer->name,
-            "email" => $contract->customer->email,
-            "returnUrl" =>  $this->redirectLink ?: config("app.url")
+            "recipientId" => (string) $contract?->contractable?->customer->id,
+            "userName" => $contract?->contractable?->customer->name,
+            "email" => $contract?->contractable?->customer->email,
+            "returnUrl" => config("app.url")
         ];
 
         $accessToken = data_get($credentials, 'access_token');
@@ -168,9 +163,9 @@ class DocuSignService
 
         $signUrl = $response->json('url');
 
-        $docusignData = (array)$contract->docusign_data ?? [];
+        $docusignData = (array)$contract->integration_data ?? [];
         $docusignData['sign_link'] = $signUrl;
-        $contract->docusign_data = $docusignData;
+        $contract->integration_data = $docusignData;
         $contract->save();
 
         return $signUrl;

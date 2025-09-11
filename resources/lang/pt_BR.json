@@ -19,8 +19,9 @@
     "From": "De",
     "Until": "Até",
     "Contracts": "Contratos",
-    "Template Contract": "Template de Contrato",
-    "Contract Templates": "Templates de Contratos",
+    "Template": "Modelo",
+    "Template Contract": "Modelo de Contrato",
+    "Contract Templates": "Modelos de Contratos",
     "Content": "Conteúdo",
     "Use the following tags": "Use as seguintes tags",
     "Created at": "Criado em",
@@ -31,8 +32,11 @@
     "Events Webhook URL": "URL do Webhook de Eventos",
     "Send for signature": "Enviar para assinatura",
     "Confirmation": "Confirmação",
-    "Are you sure you want to send this contract for signature?": "Você tem certeza que deseja enviar este contrato",
+    "Are you sure you want to send this contract for signature?": "Você tem certeza que deseja enviar este contrato?",
     "Create contract": "Criar contrato",
     "Error sending contract for signature": "Erro ao enviar contrato para assinatura",
-    "Error printing contract": "Erro ao imprimir contrato"
+    "Error printing contract": "Erro ao imprimir contrato",
+    "Send fill url": "Enviar url de preenchimento",
+    "Are you sure you want to send this contract fill url?": "Você tem certeza que deseja a url de preenchimento deste contrato?",
+    "Download generated contract": "Baixar contrato gerado"
 }

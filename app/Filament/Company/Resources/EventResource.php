@@ -73,6 +73,7 @@ class EventResource extends Resource
                 Tables\Columns\TextColumn::make('end_date')->label(__("End date"))->sortable()->searchable()->date('d/m/Y - H:i'),
             ])
             ->filters([
+                Tables\Filters\TrashedFilter::make(),
                 Filter::make('date')
                     ->form([
                         Forms\Components\DatePicker::make('start_date')->label(__('From')),
@@ -86,6 +87,10 @@ class EventResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make()
+                    ->visible(fn($record) => $record->trashed())
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

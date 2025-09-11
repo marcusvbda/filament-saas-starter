@@ -43,11 +43,7 @@ class ManagerIntegrationsSettings extends SettingsPage
                             ->label('Integration Key'),
                         Forms\Components\TextInput::make('docusign.events_webhook_url')
                             ->label(__("Events Webhook URL"))
-                            ->default(route('docusign.webhook')),
-                        Forms\Components\TextInput::make('docusign.redirect_link')
-                            ->label(__("Redirect link"))
-                            ->hint(__("Keep it empty if you want to not redirect the user after signing"))
-                            ->default("#"),
+                            ->default(route('docusign.webhook'))
                     ]),
                 ])
             ])->columns(1);

@@ -17,15 +17,18 @@ return new class extends Migration
             $table->longText('content');
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->jsonb('integration_data')->nullable();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignId('contract_template_id')->constrained()->cascadeOnDelete();
             $table->nullableMorphs('contractable');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

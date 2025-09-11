@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('document')->nullable();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

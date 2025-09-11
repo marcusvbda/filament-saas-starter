@@ -3,10 +3,8 @@
 namespace App\Filament\Company\Resources\EventResource\ContractsRelationManagerResource\RelationManagers;
 
 use App\Filament\Company\Resources\ContractTemplateResource;
-use App\Models\ContractTemplate;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -54,18 +52,45 @@ class ContractsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()->label(__('Create contract')),
+                Tables\Actions\CreateAction::make()->label(__('Create contract'))->modalHeading(__('Create contract')),
             ])
             ->actions([
-                Tables\Actions\Action::make('sendForSignature')
-                    ->label(__("Send for signature"))
-                    ->color("info")
-                    ->icon('heroicon-o-paper-airplane')
-                    ->requiresConfirmation()
-                    ->modalHeading(__("Confirmation"))
-                    ->modalDescription(__("Are you sure you want to send this contract for signature?"))
-                    ->url(fn($record) => route('docusign.contract', $record)),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('sendUrlToFill')
+                        ->label(__("Send fill url"))
+                        ->color("success")
+                        ->icon('heroicon-o-at-symbol')
+                        ->requiresConfirmation()
+                        ->modalHeading(__("Confirmation"))
+                        ->modalDescription(__("Are you sure you want to send this contract fill url?"))
+                        ->action(function ($record, $livewire) {
+                            return $livewire->redirect(route('event.generate_url_to_fill', $record));
+                        })
+                        ->visible(fn($record) => $record->contractable->customer),
+                    Tables\Actions\Action::make('sendForSignature')
+                        ->label(__("Send for signature"))
+                        ->color("warning")
+                        ->icon('heroicon-o-paper-airplane')
+                        ->requiresConfirmation()
+                        ->modalHeading(__("Confirmation"))
+                        ->modalDescription(__("Are you sure you want to send this contract for signature?"))
+                        ->action(function ($record, $livewire) {
+                            return $livewire->redirect(route('docusign.contract', $record));
+                        })
+                        ->visible(function ($record) {
+                            $status = data_get($record?->integration_data, 'status');
+                            return !empty($record?->contractable?->customer) && (!$status || $status !== "completed");
+                        }),
+                    Tables\Actions\Action::make('downloadSignedContract')
+                        ->label(__("Download generated contract"))
+                        ->color("info")
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->action(function ($record, $livewire) {
+                            return $livewire->redirect(route('docusign.print_contract', $record));
+                        })
+                        ->visible(fn($record) => !empty(data_get($record?->integration_data, 'envelopeId'))),
+                    Tables\Actions\EditAction::make(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
