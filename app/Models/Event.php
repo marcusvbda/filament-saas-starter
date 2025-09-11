@@ -19,6 +19,7 @@ class Event extends Model
         'customer_id',
         'contract_id',
         'company_id',
+        'additional_data'
     ];
 
     protected $dates = [
@@ -26,6 +27,10 @@ class Event extends Model
         'updated_at',
         'start_date',
         'end_date',
+    ];
+
+    public $casts = [
+        "additional_data" => "json"
     ];
 
     protected static function boot()

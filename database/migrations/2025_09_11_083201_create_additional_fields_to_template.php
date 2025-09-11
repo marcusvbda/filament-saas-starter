@@ -21,8 +21,8 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        Schema::table('contracts', function (Blueprint $table) {
-            $table->json('additional_data')->nullable()->after('contract_template_id');
+        Schema::table('events', function (Blueprint $table) {
+            $table->json('additional_data')->nullable();
         });
     }
 
@@ -32,7 +32,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('additional_fields');
-        Schema::table('contracts', function (Blueprint $table) {
+        Schema::table('events', function (Blueprint $table) {
             $table->dropColumn('additional_data');
         });
     }

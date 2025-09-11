@@ -19,7 +19,6 @@ class Contract extends Model
         'contract_template_id',
         'company_id',
         'integration_data',
-        'additional_data'
     ];
 
     protected $dates = [
@@ -29,19 +28,16 @@ class Contract extends Model
 
     public $casts = [
         'integration_data' => 'json',
-        'additional_data' => 'json'
     ];
 
     protected static function boot()
     {
         parent::boot();
         static::deleting(function ($contract) {
-            $event = $contract->contractable;
-            $contract->additional_data = [];
-            if ($event) {
-                $event->eventFillUrl()->delete();
-            }
-            $contract->saveQuietly();
+            $contractable = $contract->contractable;
+            $contractable->eventFillUrl()->delete();
+            $contractable->additional_data = [];
+            $contractable->saveQuietly();
         });
     }
 
