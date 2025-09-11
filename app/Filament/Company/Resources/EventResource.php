@@ -87,7 +87,7 @@ class EventResource extends Resource
                             return $fields;
                         }
                     )
-                    ->visible(fn(Get $get, $record) => !empty($record->contract) && !$record?->additional_data)
+                    ->visible(fn(Get $get, $record) => !empty($record->contract) && !$record?->additional_data && $record?->contract?->contractTemplate?->additionalFields?->count())
                     ->columns(1),
             ])->columns(1);
     }
