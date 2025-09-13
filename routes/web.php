@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Company\Pages\PublicFillFormEvent;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContractsController;
 use App\Http\Controllers\EventsController;
@@ -9,7 +10,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 Route::get('/', function () {
     return redirect()->to("/company/login");
 });
-
 
 Route::group(["prefix" => "docusign"], function () {
     Route::post('webhook', [ContractsController::class, 'webhookDocusign'])->name('docusign.webhook')->withoutMiddleware([VerifyCsrfToken::class]);
@@ -23,8 +23,5 @@ Route::group(["prefix" => "docusign"], function () {
 });
 
 Route::group(["prefix" => "event"], function () {
-    Route::get('fill/{urlKey}', [EventsController::class, 'fillEventData'])->name('event.fill_data');
-    Route::group(["middleware" => Authenticate::class], function () {
-        Route::get('generate-url-to-fill/{contract}', [EventsController::class, 'generateUrlToFill'])->name('event.generate_url_to_fill');
-    });
+    Route::get('/fill-form/{key}', PublicFillFormEvent::class)->name('event.fill_data');
 });

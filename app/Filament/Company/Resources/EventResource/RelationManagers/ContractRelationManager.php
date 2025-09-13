@@ -3,11 +3,13 @@
 namespace App\Filament\Company\Resources\EventResource\RelationManagers;
 
 use App\Filament\Company\Resources\ContractTemplateResource;
+use App\Http\Controllers\EventsController;
 use App\Models\ContractTemplate;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -73,9 +75,14 @@ class ContractRelationManager extends RelationManager
                         ->modalHeading(__("Confirmation"))
                         ->modalDescription(__("Are you sure you want to send this contract fill url?"))
                         ->action(function ($record, $livewire) {
-                            return $livewire->redirect(route('event.generate_url_to_fill', $record));
+                            app(EventsController::class)->generateUrlToFill($record);
+                            Notification::make()
+                                ->title(__("Url sent successfully"))
+                                ->success()
+                                ->send();
+                            $livewire->dispatch("refreshEventPage");
                         })
-                        ->visible(fn($record) => !empty($record?->contractable?->customer) && empty($record?->contractable?->eventFillUrl)),
+                        ->visible(fn($record) => !empty($record?->contractable?->customer)),
                     Tables\Actions\Action::make('deleteUrlToFill')
                         ->label(__("Delete fill url"))
                         ->color("danger")

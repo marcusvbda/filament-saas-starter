@@ -58,5 +58,11 @@
     "Default value": "Valor padrão",
     "Delete fill url": "Excluir url de preenchimento",
     "Are you sure you want to delete this contract fill url?": "Você tem certeza que deseja excluir a url de preenchimento deste contrato?",
-    "Required at fill form link": "Obrigatório no link de preenchimento"
+    "Required at fill form link": "Obrigatório no link de preenchimento",
+    "Thank you, your data was sent succefully": "Obrigado, seus dados foram enviados com sucesso",
+    "Fill the form bellow with the your data": "Preencha o formulário com os seus dados",
+    "Send data": "Enviar dados",
+    "Url sent successfully": "Url enviada com sucesso",
+    "Thank you": "Obrigado",
+    "Your data has been sent successfully. Thank you for your participation": "Seus dados foram enviados com sucesso. Agradecemos sua participação"
 }
