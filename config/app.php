@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+
+    'beta_register_key' => env("BETA_REGISTER_KEY", ''),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

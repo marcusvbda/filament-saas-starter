@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Actions\FilamentCompanies\AddCompanyEmployee;
-// use App\Actions\FilamentCompanies\CreateConnectedAccount;
 use App\Actions\FilamentCompanies\CreateNewUser;
 use App\Actions\FilamentCompanies\CreateUserFromProvider;
 use App\Actions\FilamentCompanies\DeleteCompany;
@@ -14,9 +13,9 @@ use App\Actions\FilamentCompanies\RemoveCompanyEmployee;
 use App\Actions\FilamentCompanies\ResolveSocialiteUser;
 use App\Actions\FilamentCompanies\SetUserPassword;
 use App\Actions\FilamentCompanies\UpdateCompanyName;
-// use App\Actions\FilamentCompanies\UpdateConnectedAccount;
 use App\Actions\FilamentCompanies\UpdateUserPassword;
 use App\Actions\FilamentCompanies\UpdateUserProfileInformation;
+use App\Filament\Company\Pages\RegisterCustomPage;
 use App\Models\Company;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -38,11 +37,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use TomatoPHP\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Wallo\FilamentCompanies\Actions\GenerateRedirectForProvider;
-// use Wallo\FilamentCompanies\Enums\Feature;
-// use Wallo\FilamentCompanies\Enums\Provider;
 use Wallo\FilamentCompanies\FilamentCompanies;
 use Wallo\FilamentCompanies\Pages\Auth\Login;
-use Wallo\FilamentCompanies\Pages\Auth\Register;
 use Wallo\FilamentCompanies\Pages\Company\CompanySettings;
 use Wallo\FilamentCompanies\Pages\Company\CreateCompany;
 use Wallo\FilamentCompanies\Pages\User\Profile;
@@ -91,7 +87,7 @@ class FilamentCompaniesServiceProvider extends PanelProvider
                     FilamentLanguageSwitcherPlugin::make(),
                 ]
             )
-            ->registration(Register::class)
+            ->registration(RegisterCustomPage::class)
             ->colors([
                 'primary' => Color::Amber,
             ])

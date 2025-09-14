@@ -64,5 +64,7 @@
     "Send data": "Enviar dados",
     "Url sent successfully": "Url enviada com sucesso",
     "Thank you": "Obrigado",
-    "Your data has been sent successfully. Thank you for your participation": "Seus dados foram enviados com sucesso. Agradecemos sua participação"
+    "Your data has been sent successfully. Thank you for your participation": "Seus dados foram enviados com sucesso. Agradecemos sua participação",
+    "Invalid beta key": "Beta key inválida",
+    "If you don't have a beta key to register yet, ask to the adminstrator. It'll be required while this app is on beta tests": "Se você não tem tem ainda a key de registro, solicite ao administrador. Isso será necessário enquanto a aplicação estiver em beta teste"
 }
