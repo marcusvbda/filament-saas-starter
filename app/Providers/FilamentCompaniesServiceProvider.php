@@ -35,6 +35,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 use TomatoPHP\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Wallo\FilamentCompanies\Actions\GenerateRedirectForProvider;
 use Wallo\FilamentCompanies\FilamentCompanies;
@@ -85,6 +86,7 @@ class FilamentCompaniesServiceProvider extends PanelProvider
                     //     features: [Feature::RememberSession, Feature::ProviderAvatars],
                     // ),
                     FilamentLanguageSwitcherPlugin::make(),
+                    FilamentFullCalendarPlugin::make()
                 ]
             )
             ->registration(RegisterCustomPage::class)
@@ -109,8 +111,8 @@ class FilamentCompaniesServiceProvider extends PanelProvider
             ->authGuard('web')
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\AccountWidget::class,
+                // Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
