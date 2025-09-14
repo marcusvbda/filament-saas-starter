@@ -26,7 +26,6 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -91,7 +90,7 @@ class FilamentCompaniesServiceProvider extends PanelProvider
             )
             ->registration(RegisterCustomPage::class)
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Cyan,
             ])
             ->viteTheme('resources/css/filament/company/theme.css')
             ->tenant(Company::class)
