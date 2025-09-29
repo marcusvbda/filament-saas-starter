@@ -17,13 +17,6 @@ class ContractTemplateResource extends Resource
 {
     protected static ?string $model = ContractTemplate::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    public static $templateTags = [
-        'name',
-        'customer.email',
-        'customer.name',
-        'customer.document',
-        'company.name',
-    ];
 
     public static function getNavigationLabel(): string
     {
@@ -53,15 +46,7 @@ class ContractTemplateResource extends Resource
                 ->label(__("Content"))
                 ->helperText(
                     fn(Get $get) =>
-                    __("Use the following tags") . " : " .
-                        collect(static::$templateTags)
-                        ->merge(
-                            collect($get('additionalFields') ?? [])
-                                ->pluck('data.key')
-                                ->filter()
-                        )
-                        ->map(fn($tag) => "{{{$tag}}}")
-                        ->join(', ')
+                    __("Use the following tags") . " : {{customers.name}}, {{customers.email}}, {{customers.phone}}, {{customers.document}}, {{event.start_date}}, {{event.end_date}}, {{contract.name}}, {{contract.witnesses.0.name}}, {{contract.witnesses.n.email}} e {{additional_data.x}}"
                 )
                 ->reactive()
                 ->required(),

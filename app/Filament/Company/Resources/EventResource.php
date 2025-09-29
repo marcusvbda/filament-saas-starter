@@ -2,10 +2,8 @@
 
 namespace App\Filament\Company\Resources;
 
-use App\Filament\Company\Resources\EventResource\ContractsRelationManagerResource\RelationManagers\ContractsRelationManager;
 use App\Filament\Company\Resources\EventResource\Pages;
 use App\Filament\Company\Resources\EventResource\RelationManagers\ContractRelationManager;
-use App\Models\ContractTemplate;
 use App\Models\Event;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -67,7 +65,6 @@ class EventResource extends Resource
                                 $fields[] = Forms\Components\Placeholder::make('fill_url_alert')->hiddenLabel()
                                     ->content(new HtmlString('<a href="' . e($url) . '" target="_blank" class="underline text-primary">' . e($url) . '</a>'));
                             }
-
                             $customFields = collect(
                                 $record?->contract?->contractTemplate?->additionalFields()?->get() ?? []
                             )->map(function ($field) use ($record) {
@@ -104,39 +101,6 @@ class EventResource extends Resource
                     )
                     ->visible(fn(Get $get, $record) =>  $record?->contract?->contractTemplate?->additionalFields?->count())
                     ->reactive(),
-                // Forms\Components\Section::make(__('Additional data'))
-                //     ->schema(
-                //         function (Get $get, $record) {
-                //             $contract = $record?->contract;
-                //             $additionalData = $contract->additional_data ?? [];
-                //             $fields = [];
-                //             if (!empty($record->eventFillUrl) && $record->eventFillUrl?->filled !== true) {
-                //                 $url = route('event.fill_data', $record->eventFillUrl->key);
-
-                //                 $fields[] = Forms\Components\Placeholder::make('fill_url_alert')->hiddenLabel()
-                //                     ->content(new HtmlString('<a href="' . e($url) . '" target="_blank" class="underline text-primary">' . e($url) . '</a>'));
-                //             }
-
-                //             $fields = array_merge($fields, collect($record?->contract?->contractTemplate?->additionalFields ?? [])
-                //                 ->map(function ($field) use ($additionalData) {
-                //                     $key = data_get($field->data, 'key');
-
-                //                     return Forms\Components\TextInput::make("additional_data.{$key}")
-                //                         ->label(__($key))
-                //                         ->disabled()
-                //                         ->dehydrated(false)
-                //                         ->afterStateHydrated(function ($component) use ($additionalData, $key) {
-                //                             $component->state(data_get($additionalData, $key, ''));
-                //                         });
-                //                 })
-                //                 ->values()
-                //                 ->all());
-
-                //             return $fields;
-                //         }
-                //     )
-                //     ->visible(fn(Get $get, $record) => !empty($record->contract) && !$record?->additional_data && $record?->contract?->contractTemplate?->additionalFields?->count())
-                //     ->columns(1),
             ])->columns(1);
     }
 

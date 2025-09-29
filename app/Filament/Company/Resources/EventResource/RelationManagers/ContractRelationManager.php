@@ -4,11 +4,8 @@ namespace App\Filament\Company\Resources\EventResource\RelationManagers;
 
 use App\Filament\Company\Resources\ContractTemplateResource;
 use App\Http\Controllers\EventsController;
-use App\Models\ContractTemplate;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -31,8 +28,21 @@ class ContractRelationManager extends RelationManager
             Forms\Components\Select::make("contract_template_id")
                 ->label(__("Template"))
                 ->relationship('contractTemplate', 'name')
+                ->required()
                 ->searchable()
                 ->createOptionForm(ContractTemplateResource::getFormFields()),
+            Forms\Components\Repeater::make('witnesses')
+                ->label(__("Witnesses"))
+                ->schema([
+                    Forms\Components\TextInput::make('name')
+                        ->label(__("Name"))
+                        ->required(),
+                    Forms\Components\TextInput::make('email')
+                        ->email()
+                        ->required(),
+                ])
+                ->columns(2)
+                ->collapsed(false),
         ];
     }
 
@@ -94,7 +104,7 @@ class ContractRelationManager extends RelationManager
                             $record?->contractable?->eventFillUrl()->delete();
                             $livewire->dispatch("refreshEventPage");
                         })
-                        ->visible(fn($record) => !empty($record?->contractable?->eventFillUrl)),
+                        ->visible(fn($record) => $record?->contractable?->eventFillUrl()->where("filled", false)->exists()),
                     Tables\Actions\Action::make('sendForSignature')
                         ->label(__("Send for signature"))
                         ->color("warning")

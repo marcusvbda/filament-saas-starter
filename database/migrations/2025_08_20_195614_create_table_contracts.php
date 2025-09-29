@@ -26,6 +26,7 @@ return new class extends Migration
             $table->jsonb('integration_data')->nullable();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignId('contract_template_id')->constrained()->cascadeOnDelete();
+            $table->jsonb('witnesses')->nullable();
             $table->nullableMorphs('contractable');
             $table->timestamps();
             $table->softDeletes();

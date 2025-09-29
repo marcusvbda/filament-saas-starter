@@ -18,6 +18,7 @@ class Contract extends Model
         'name',
         'contract_template_id',
         'company_id',
+        'witnesses',
         'integration_data',
     ];
 
@@ -28,6 +29,7 @@ class Contract extends Model
 
     public $casts = [
         'integration_data' => 'json',
+        'witnesses' => 'array'
     ];
 
     protected static function boot()
@@ -40,7 +42,6 @@ class Contract extends Model
             $contractable->saveQuietly();
         });
     }
-
 
     public function contractTemplate(): BelongsTo
     {
@@ -56,5 +57,19 @@ class Contract extends Model
     public function contractable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function getReplacePayload()
+    {
+        $event = $this->contractable;
+        $customer = $event->customer;
+
+        $result = [
+            "customers" => $customer->only(["name", "email", "phone", "document"]),
+            "event" => $event->only(["start_date", "end_date"]),
+            "contract" => $this->only(["name", "witnesses"]),
+            "additional_data" => collect(data_get($event, "additional_data", []))->map(fn($x) => is_array($x) ? implodeSuffix(", ", $x) : $x)->toArray()
+        ];
+        return $result;
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Filament\Company\Resources\ContractTemplateResource as ResourcesContractTemplateResource;
 use App\Filament\Company\Resources\EventResource\Pages\EditEvent;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Contract;
@@ -32,9 +31,6 @@ class DocuSignService
 
     public function printPdf(Contract $contract, $code = null): mixed
     {
-        if (@$contract->integration_data?->signed_pdf) {
-            return response()->file($contract->integration_data?->signed_pdf);
-        }
         if (!$code) {
             return $this->redirectOAuth($contract, 'printPdf');
         }
@@ -49,12 +45,9 @@ class DocuSignService
 
         if ($response->failed()) abort(500, 'Erro ao baixar contrato assinado');
         $streamContent = $response->body();
-        $path = $this->generatePdf($contract, $streamContent);
-        $docusignData = (array)$contract->integration_data;
-        $docusignData["signed_pdf"] = $path;
-        $contract->integration_data = $docusignData;
-        $contract->save();
-        return response()->file($path);
+        return response($streamContent, 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="contrato.pdf"');
     }
 
     public function sendToSign(Contract $contract, $code = null): RedirectResponse
@@ -81,6 +74,20 @@ class DocuSignService
         $documentBase64 = base64_encode($documentContents);
         $filename = $contract->getFileName();
 
+        $signers[] = [
+            'email' => $contract?->contractable?->customer->email,
+            'name' => $contract?->contractable?->customer->name,
+            'recipientId' => (string) $contract?->contractable?->customer->id,
+        ];
+
+        foreach ($contract->witnesses  as $witness) {
+            $signers[] = [
+                "email" => data_get($witness, "email"),
+                "name" => data_get($witness, "name"),
+                "recipientId" => md5(data_get($witness, "email") . uniqid()),
+            ];
+        }
+
         $payload = [
             'emailSubject' => "Contrato " . $contract->company->name,
             'documents' => [[
@@ -90,11 +97,7 @@ class DocuSignService
                 'documentId' => (string) $contract->id,
             ]],
             'recipients' => [
-                'signers' => [[
-                    'email' => $contract?->contractable?->customer->email,
-                    'name' => $contract?->contractable?->customer->name,
-                    'recipientId' => (string) $contract?->contractable?->customer->id,
-                ]],
+                'signers' => $signers,
             ],
             'status' => 'sent',
             "eventNotification" => [
@@ -121,12 +124,12 @@ class DocuSignService
             ->withHeaders(['Accept' => 'application/json'])
             ->post("$this->baseUri/restapi/v2.1/accounts/$accountId/envelopes", $payload);
 
+
         if ($envelopeResponse->failed()) {
             $status = $envelopeResponse->status();
             $body = $envelopeResponse->body();
             throw new \Exception("DocuSign error ($status): $body");
         }
-
         $result = $envelopeResponse->json();
         $result["status"] = strtolower(data_get($result, 'status', 'sent'));
         $envelopeId = data_get($result, 'envelopeId');
@@ -225,31 +228,11 @@ class DocuSignService
         if ($pdfBinary) {
             Storage::put('contracts/' . $filename, $pdfBinary);
         } else {
-            $html = $this->parseTemplate($contract);
+            $html = ContractTemplate::parseTemplate($contract);
             $pdf = Pdf::loadHTML($html)->setPaper('a4');
             Storage::put('contracts/' . $filename, $pdf->output());
         }
 
         return Storage::path('contracts/' . $filename);
-    }
-
-    private function parseTemplate(Contract $contract): string
-    {
-        $replacements = [];
-        $template = $contract->contractTemplate;
-        $contractAdditionalData = $contract?->additional_data ?? [];
-        $payload = $contract->contractable->getRenderPdfPayload();
-        foreach (ResourcesContractTemplateResource::$templateTags as $tag) {
-            $replacements[$tag] = data_get($payload, $tag, "");
-        }
-        foreach ($template->additionalFields as $additionalField) {
-            $key = data_get($additionalField->data, "key", '');
-            $value = data_get($contractAdditionalData, $key, '');
-            if (is_array($value)) {
-                $value = implode(", ", $value);
-            }
-            $replacements[$tag] = $value;
-        }
-        return strtr($template->content, $replacements);
     }
 }

@@ -39,6 +39,7 @@ class PublicFillFormEvent extends Page implements HasForms
                 $value = data_get($this->event, "additional_data.$key", null);
                 return [$key => $value];
             })->toArray();
+        $this->data["witnesses"] =  data_get($this->event->contract, "witnesses", []);
     }
 
     public function form(Form $form): Form
@@ -47,7 +48,7 @@ class PublicFillFormEvent extends Page implements HasForms
             ->statePath('data')
             ->schema(
                 function () {
-                    return collect(
+                    return array_merge(collect(
                         $this->event?->contract?->contractTemplate?->additionalFields()?->get() ?? []
                     )->map(function ($field) {
                         $key = data_get($field->data, 'key');
@@ -77,7 +78,20 @@ class PublicFillFormEvent extends Page implements HasForms
                                     ->required(fn() => $field->data['required'])
                                     ->helperText($field->data['hint'] ?? null);
                         }
-                    })->toArray();
+                    })->toArray(), [
+                        Forms\Components\Repeater::make('witnesses')
+                            ->label(__("Witnesses"))
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->label(__("Name"))
+                                    ->required(),
+                                Forms\Components\TextInput::make('email')
+                                    ->email()
+                                    ->required(),
+                            ])
+                            ->columns(2)
+                            ->collapsed(false),
+                    ]);
                 }
             );
     }
@@ -85,6 +99,13 @@ class PublicFillFormEvent extends Page implements HasForms
     public function submit(): void
     {
         $data = $this->form->getState();
+        $witnesses = [];
+        if (@$data["witnesses"]) {
+            $witnesses = $data["witnesses"];
+            unset($data["witnesses"]);
+            $this->event->contract->witnesses = $witnesses;
+            $this->event->contract->save();
+        }
         $this->event->additional_data = array_merge($this->event->additional_data ?? [], $data);
         $this->url->filled = true;
         $this->url->save();

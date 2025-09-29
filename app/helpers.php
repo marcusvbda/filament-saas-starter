@@ -13,3 +13,20 @@ if (!function_exists('implodeSuffix')) {
         return implode($sep, array_slice($items, 0, -1)) . $final . end($items);
     }
 }
+
+if (!function_exists('flattenKeys')) {
+    function flattenKeys(array $array, string $prefix = ''): array
+    {
+        $keys = [];
+        foreach ($array as $key => $value) {
+            $fullKey = $prefix === '' ? $key : $prefix . '.' . $key;
+
+            if (is_array($value)) {
+                $keys = array_merge($keys, flattenKeys($value, $fullKey));
+            } else {
+                $keys[] = $fullKey;
+            }
+        }
+        return $keys;
+    }
+}

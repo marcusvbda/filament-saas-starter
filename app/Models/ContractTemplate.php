@@ -27,4 +27,16 @@ class ContractTemplate extends Model
     {
         return $this->morphMany(AdditionalField::class, 'fieldable')->orderBy('sort_order');
     }
+
+    public static function parseTemplate($contract): string
+    {
+        $replacements = [];
+        $content = $contract->contractTemplate->content;
+        $payload = $contract->getReplacePayload();
+        $variables = flattenKeys($payload);
+        foreach ($variables as $tag) {
+            $replacements["{{" . $tag . "}}"] = data_get($payload, $tag);
+        }
+        return strtr($content, $replacements);
+    }
 }
