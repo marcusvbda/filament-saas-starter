@@ -8,7 +8,6 @@ use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
@@ -20,7 +19,7 @@ class PublicFillFormEvent extends Page implements HasForms
 
     protected static ?string $navigationIcon = null;
     protected static string $view = 'filament.pages.public-fill-form-event';
-    protected static string $layout = 'filament-panels::components.layout.simple';
+    protected static string $layout = 'filament-panels::components.layout.base';
     protected static bool $shouldRegisterNavigation = false;
     public array $data = [];
 
@@ -72,6 +71,28 @@ class PublicFillFormEvent extends Page implements HasForms
                                     ->label($field->data['label'])
                                     ->required(fn() => $field->data['required'])
                                     ->helperText($field->data['hint'] ?? null);
+                            case 'text_repeater':
+                                return Forms\Components\Repeater::make($key)
+                                    ->label($field->data['label'])
+                                    ->hint(fn() => $field->data['required'] ? __("Required at fill form link") : '')
+                                    ->helperText($field->data['hint'] ?? null)
+                                    ->itemLabel(function (array $state, $component): ?string {
+                                        static $position = 1;
+                                        return "#" . $position++;
+                                    })
+                                    ->schema([
+                                        Forms\Components\TextInput::make('value')
+                                            ->label($field->data['item_label'])
+                                            ->required($field->data['required'] ?? false)
+                                    ])
+                                    ->minItems($field->data['required'] ? 1 : 0)
+                                    ->maxItems($field->data['max_length'] ?? null)
+                                    ->collapsed(false)
+                                    ->defaultItems(1)
+                                    ->reorderable(false)
+                                    ->collapsible(false)
+                                    ->grid(2)
+                                    ->columnSpanFull();
                             default:
                                 return Forms\Components\TextInput::make($key)
                                     ->label($field->data['label'])

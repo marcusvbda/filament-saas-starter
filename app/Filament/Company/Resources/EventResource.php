@@ -88,6 +88,28 @@ class EventResource extends Resource
                                             ->label($field->data['label'])
                                             ->hint(fn() => $field->data['required'] ? __("Required at fill form link") : '')
                                             ->helperText($field->data['hint'] ?? null);
+                                    case 'text_repeater':
+                                        return Forms\Components\Repeater::make("additional_data.{$key}")
+                                            ->label($field->data['label'])
+                                            ->hint(fn() => $field->data['required'] ? __("Required at fill form link") : '')
+                                            ->helperText($field->data['hint'] ?? null)
+                                            ->itemLabel(function (array $state, $component): ?string {
+                                                static $position = 1;
+                                                return "#" . $position++;
+                                            })
+                                            ->schema([
+                                                Forms\Components\TextInput::make('value')
+                                                    ->label($field->data['item_label'])
+                                                    ->required($field->data['required'] ?? false)
+                                            ])
+                                            ->minItems($field->data['required'] ? 1 : 0)
+                                            ->maxItems($field->data['max_length'] ?? null)
+                                            ->collapsed(false)
+                                            ->defaultItems(1)
+                                            ->reorderable(false)
+                                            ->collapsible(false)
+                                            ->grid(3)
+                                            ->columnSpanFull();
                                     default:
                                         return Forms\Components\TextInput::make("additional_data.{$key}")
                                             ->label($field->data['label'])

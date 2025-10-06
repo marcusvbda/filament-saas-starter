@@ -45,7 +45,7 @@ class Contract extends Model
 
     public function contractTemplate(): BelongsTo
     {
-        return $this->BelongsTo(ContractTemplate::class);
+        return $this->BelongsTo(ContractTemplate::class)->where('company_id', $this->company_id);
     }
 
     public function getFileName(): string

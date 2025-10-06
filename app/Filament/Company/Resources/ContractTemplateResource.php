@@ -45,8 +45,16 @@ class ContractTemplateResource extends Resource
             TinyEditor::make('content')
                 ->label(__("Content"))
                 ->helperText(
-                    fn(Get $get) =>
-                    __("Use the following tags") . " : {{customers.name}}, {{customers.email}}, {{customers.phone}}, {{customers.document}}, {{event.start_date}}, {{event.end_date}}, {{contract.name}}, {{contract.witnesses.0.name}}, {{contract.witnesses.n.email}} e {{additional_data.x}}"
+                    function (Get $get) {
+                        $default = ["{{customers.name}}", "{{customers.email}}", "{{customers.phone}}", "{{customers.document}}", "{{event.start_date}}", "{{event.end_date}}", "{{contract.name}}", "{{contract.witnesses.n.name}}", "{{contract.witnesses.n.email}}"];
+                        $customFields = [];
+                        if ($get('additionalFields') && count($get('additionalFields')) > 0) {
+                            $customFields = collect($get('additionalFields'))->map(function ($item) {
+                                return '{{additional_data.' . $item['data']['key'] . '}}';
+                            })->toArray();
+                        }
+                        return __("You can use your custom fields") . " : " . implodeSuffix(', ', array_merge($default, $customFields ?? []));
+                    }
                 )
                 ->reactive()
                 ->required(),
@@ -57,6 +65,16 @@ class ContractTemplateResource extends Resource
                         ->label(__('Additional fields'))
                         ->relationship('additionalFields')
                         ->schema([
+                            Forms\Components\Select::make('data.type')
+                                ->label(__('Type'))
+                                ->options([
+                                    'select'   => __('Select'),
+                                    'text'     => __('Text'),
+                                    'text_repeater'   => __('Text repeater'),
+                                    'checkbox' => __('Checkbox'),
+                                ])
+                                ->required()
+                                ->reactive(),
                             Forms\Components\TextInput::make('data.key')
                                 ->label(__('Key'))
                                 ->required()
@@ -73,15 +91,6 @@ class ContractTemplateResource extends Resource
                             Forms\Components\TextInput::make('data.label')
                                 ->label(__('Label'))
                                 ->required(),
-                            Forms\Components\Select::make('data.type')
-                                ->label(__('Type'))
-                                ->options([
-                                    'select'   => __('Select'),
-                                    'text'     => __('Text'),
-                                    'checkbox' => __('Checkbox'),
-                                ])
-                                ->required()
-                                ->reactive(),
                             Forms\Components\Select::make('data.input_type')
                                 ->label(__('Input type'))
                                 ->options([
@@ -91,13 +100,22 @@ class ContractTemplateResource extends Resource
                                     'mask'   => __('Mask'),
                                 ])
                                 ->required()
-                                ->visible(fn(Get $get) => $get('data.type') === 'text')
+                                ->visible(fn(Get $get) => in_array($get('data.type'), ['text', 'text_repeater']))
                                 ->reactive(),
+                            Forms\Components\TextInput::make('data.item_label')
+                                ->label(__('Item label'))
+                                ->required()
+                                ->visible(fn(Get $get) => in_array($get('data.type'), ['text_repeater'])),
                             Forms\Components\TextInput::make('data.mask')
                                 ->label(__('Mask'))
                                 ->required()
-                                ->visible(fn(Get $get) => $get('data.input_type') === 'mask' && $get('data.type') === 'text')
+                                ->visible(fn(Get $get) => $get('data.input_type') === 'mask' && in_array($get('data.type'), ['text', 'text_repeater']))
                                 ->reactive(),
+                            Forms\Components\TextInput::make('data.max_length')
+                                ->numeric()
+                                ->label(__('Max length'))
+                                ->required()
+                                ->visible(fn(Get $get) => in_array($get('data.type'), ['text', 'text_repeater'])),
                             Forms\Components\Toggle::make('data.multiple')
                                 ->label(__('Multiple'))
                                 ->visible(fn(Get $get) => $get('data.type') === 'select'),
